@@ -332,6 +332,7 @@ $$ LANGUAGE plpgsql;
 ## ER-модель
 
 ![image](/kyco_part2/ER.png)
+[Link](https://drive.google.com/file/d/1R4NYsNLGae8fItxbtIwHZdG-tc4Ar3Y_/view?usp=sharing)
 
 ## Даталогическая модель
 

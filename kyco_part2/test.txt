@@ -1,0 +1,25 @@
+EXPLAIN ANALYZE
+SELECT * FROM "User" 
+WHERE user_name = 'trainer2';
+
+EXPLAIN ANALYZE
+SELECT * FROM "User" 
+WHERE email_address = 'trainer1@example.com';
+
+EXPLAIN ANALYZE
+SELECT * FROM GumFacility
+WHERE Facility_name = 'Fitness Center 1';
+
+EXPLAIN ANALYZE
+SELECT * FROM "Class"
+WHERE class_name = 'Morning Yoga';
+
+EXPLAIN ANALYZE
+SELECT * FROM Schedule
+WHERE date = '2025-01-10';
+
+EXPLAIN ANALYZE
+SELECT cs.*
+FROM Customer_Schedule cs
+JOIN Schedule s ON cs.schedule_id = s.Schedule_id
+WHERE cs.customer_id = 13;

@@ -1,180 +1,244 @@
--- Bảng Khách hàng
-CREATE TABLE Customer (
-    CustomerID SERIAL PRIMARY KEY,
-    FullName VARCHAR(100) NOT NULL,
-    Phone VARCHAR(15),
-    Email VARCHAR(100) UNIQUE,
-    Age INT NOT NULL,
-    RegistrationDate DATE NOT NULL
+-- 1. User (for login purposes)
+CREATE TABLE "User" (
+    user_id SERIAL PRIMARY KEY,
+    user_name VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    role VARCHAR(100) NOT NULL,
+    phone_number VARCHAR(15),
+    email_address VARCHAR(255),
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Bảng Huấn luyện viên
+-- 2. Trainer
 CREATE TABLE Trainer (
-    TrainerID SERIAL PRIMARY KEY,
-    FullName VARCHAR(100) NOT NULL,
-    Age INT NOT NULL,
-    Phone VARCHAR(15),
-    Specialty VARCHAR(100)
+    user_id INT PRIMARY KEY REFERENCES "User"(user_id),
+    name VARCHAR(255) NOT NULL,
+    age INT NOT NULL,
+    specialty VARCHAR(255) NOT NULL
 );
 
--- Bảng Gói tập
+-- 3. Gym Facility
+CREATE TABLE GumFacility (
+    Facility_id SERIAL PRIMARY KEY,
+    Facility_name VARCHAR(255) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    capacity INT NOT NULL
+);
+
+-- 4. Membership Plan
 CREATE TABLE MembershipPlan (
-    PlanID SERIAL PRIMARY KEY,
-    PlanName VARCHAR(100) NOT NULL,
-    Price DECIMAL(10, 2) NOT NULL,
-    Duration INT NOT NULL -- Thời hạn tính bằng ngày
+    plan_id SERIAL PRIMARY KEY,
+    plan_name VARCHAR(255) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    duration INT NOT NULL -- Duration in days
 );
 
--- Bảng Phòng tập
-CREATE TABLE GymFacility (
-    FacilityID SERIAL PRIMARY KEY,
-    FacilityName VARCHAR(100) NOT NULL,
-    Address VARCHAR(255),
-    Capacity INT
+-- 5. Customer
+CREATE TABLE Customer (
+    user_id INT PRIMARY KEY REFERENCES "User"(user_id),
+    full_name VARCHAR(255) NOT NULL,
+    age INT NOT NULL,
+    registration_date DATE NOT NULL
 );
 
--- Bảng Thiết bị
-CREATE TABLE Equipment (
-    EquipmentID SERIAL PRIMARY KEY,
-    EquipmentName VARCHAR(100) NOT NULL,
-    Type VARCHAR(100),
-    Status VARCHAR(50)
-);
-
--- Bảng Bài tập
+-- 6. Workout
 CREATE TABLE Workout (
-    WorkoutID SERIAL PRIMARY KEY,
-    WorkoutName VARCHAR(100) NOT NULL,
-    Category VARCHAR(50),
-    Difficulty VARCHAR(50)
+    workout_id SERIAL PRIMARY KEY,
+    workout_name VARCHAR(255) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    difficulty VARCHAR(50) NOT NULL
 );
 
--- Bảng Lịch tập
+-- 7. Class
+CREATE TABLE "Class" (
+    class_id SERIAL PRIMARY KEY,
+    class_name VARCHAR(255) NOT NULL,
+    class_type VARCHAR(100) NOT NULL,
+    max_participants INT NOT NULL,
+    facility_id INT REFERENCES GumFacility(Facility_id) ON DELETE SET NULL
+);
+
+-- 8. Class Workout
+CREATE TABLE Class_Workout (
+    class_id INT REFERENCES "Class"(class_id) ON DELETE CASCADE,
+    workout_id INT REFERENCES Workout(workout_id) ON DELETE CASCADE,
+    PRIMARY KEY (class_id, workout_id)
+);
+
+-- 9. Customer Membership
+CREATE TABLE Customer_Membership (
+    customer_membership_id SERIAL PRIMARY KEY,
+    plan_id INT REFERENCES MembershipPlan(plan_id) ON DELETE CASCADE,
+    customer_id INT REFERENCES Customer(user_id) ON DELETE CASCADE,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL
+);
+
+-- 10. Schedule
 CREATE TABLE Schedule (
-    ScheduleID SERIAL PRIMARY KEY,
-    StartTime TIME NOT NULL,
-    EndTime TIME NOT NULL,
-    Date DATE NOT NULL,
-    TrainerID INT REFERENCES Trainer(TrainerID)
+    Schedule_id SERIAL PRIMARY KEY,
+    trainer_id INT REFERENCES Trainer(user_id) ON DELETE CASCADE,
+    start_time TIME NOT NULL,
+    end_time TIME NOT NULL,
+    date DATE NOT NULL
 );
 
--- Bảng Lớp tập
-CREATE TABLE Class (
-    ClassID SERIAL PRIMARY KEY,
-    ClassName VARCHAR(100) NOT NULL,
-    ClassType VARCHAR(100),
-    MaxParticipants INT NOT NULL,
-    FacilityID INT REFERENCES GymFacility(FacilityID)
+-- 11. Class Enrollment
+CREATE TABLE Class_Enrollment (
+    enrollment_id SERIAL PRIMARY KEY,
+    customer_id INT REFERENCES Customer(user_id) ON DELETE CASCADE,
+    class_id INT REFERENCES "Class"(class_id) ON DELETE CASCADE,
+    enrollment_date DATE NOT NULL
 );
 
--- Bảng Đăng ký lớp tập (Quan hệ nhiều-nhiều giữa Khách hàng và Lớp tập)
-CREATE TABLE ClassEnrollment (
-    EnrollmentID SERIAL PRIMARY KEY,
-    CustomerID INT REFERENCES Customer(CustomerID),
-    ClassID INT REFERENCES Class(ClassID),
-    EnrollmentDate DATE NOT NULL
+-- 12. Customer Schedule
+CREATE TABLE Customer_Schedule (
+    customer_id INT REFERENCES Customer(user_id) ON DELETE CASCADE,
+    schedule_id INT REFERENCES Schedule(Schedule_id) ON DELETE CASCADE,
+    class_id INT REFERENCES "Class"(class_id) ON DELETE CASCADE,
+    trainer_id INT REFERENCES Trainer(user_id) ON DELETE CASCADE,
+    PRIMARY KEY (customer_id, schedule_id, class_id, trainer_id)
 );
 
--- Bảng Khách hàng và Lịch tập (Quan hệ nhiều-nhiều giữa Khách hàng và Lịch tập)
-CREATE TABLE CustomerSchedule (
-    CustomerID INT REFERENCES Customer(CustomerID),
-    ScheduleID INT REFERENCES Schedule(ScheduleID),
-    TrainerID INT REFERENCES Trainer(TrainerID) ON DELETE SET NULL,
-    PRIMARY KEY (CustomerID, ScheduleID)
-);
-
--- Bảng Quan hệ nhiều-nhiều giữa Lớp tập và Bài tập
-CREATE TABLE ClassWorkout (
-    ClassID INT REFERENCES Class(ClassID),
-    WorkoutID INT REFERENCES Workout(WorkoutID),
-    PRIMARY KEY (ClassID, WorkoutID)
-);
-
--- Bảng Quan hệ 1-nhiều giữa Gói tập và Khách hàng
-CREATE TABLE CustomerMembership (
-    MembershipID SERIAL PRIMARY KEY,
-    CustomerID INT REFERENCES Customer(CustomerID),
-    PlanID INT REFERENCES MembershipPlan(PlanID),
-    StartDate DATE NOT NULL,
-    EndDate DATE NOT NULL
-);
 
 -- Thêm các ràng buộc
+-- Ràng buộc mail 
+ALTER TABLE "User"
+ADD CONSTRAINT email_format CHECK (email_address ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+
+-- Ràng buộc thời gian trong lịch 
 ALTER TABLE Schedule
-ADD CONSTRAINT CK_ScheduleTime CHECK (StartTime < EndTime);
+ADD CONSTRAINT valid_schedule_time CHECK (start_time < end_time);
 
-ALTER TABLE Class
-ADD CONSTRAINT CK_Class_Capacity CHECK (MaxParticipants > 0);
-
+-- Ràng buộc tuổi 
 ALTER TABLE Customer
-ADD CONSTRAINT CK_Email_Format CHECK (Email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+ADD CONSTRAINT valid_age CHECK (age >= 0);
 
+-- Ràng buộc giá tiền 
 ALTER TABLE MembershipPlan
-ADD CONSTRAINT CK_Plan_Price CHECK (Price > 0);
+ADD CONSTRAINT valid_price CHECK (price >= 0);
 
-ALTER TABLE GymFacility
-ADD CONSTRAINT CK_Facility_Capacity CHECK (Capacity > 0);
+-- Ràng buộc thời gian bắt đầu phải trước kết thúc
+ALTER TABLE Customer_Membership
+ADD CONSTRAINT valid_membership_dates CHECK (start_date < end_date);
+
+-- Ràng buộc số lượng tối đa > 0
+ALTER TABLE "Class"
+ADD CONSTRAINT valid_max_participants CHECK (max_participants > 0);
+
+-- Ràng buộc độ khó
+ALTER TABLE Workout
+ADD CONSTRAINT valid_difficulty CHECK (difficulty IN ('Easy', 'Medium', 'Hard'));
 
 -- Triggers
 CREATE OR REPLACE FUNCTION check_class_capacity()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Đếm số người đã đăng ký
-    IF (
-        (SELECT COUNT(*) FROM ClassEnrollment WHERE ClassID = NEW.ClassID) >= 
-        (SELECT MaxParticipants FROM Class WHERE ClassID = NEW.ClassID)
-    ) THEN
-        RAISE EXCEPTION 'Class is already full!';
+    -- Kiểm tra số lượng học viên hiện tại trong lớp
+    IF (SELECT COUNT(*) FROM Class_Enrollment WHERE class_id = NEW.class_id) >= (SELECT max_participants FROM "Class" WHERE class_id = NEW.class_id) THEN
+        RAISE EXCEPTION 'Class is full!';
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trg_check_class_capacity
-BEFORE INSERT ON ClassEnrollment
+BEFORE INSERT ON Class_Enrollment
 FOR EACH ROW
 EXECUTE FUNCTION check_class_capacity();
 
+
 -- 
 
-CREATE OR REPLACE FUNCTION set_membership_end_date()
+CREATE OR REPLACE FUNCTION set_end_date_for_membership()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.EndDate := NEW.StartDate + 
-                   (SELECT Duration FROM MembershipPlan WHERE PlanID = NEW.PlanID) * INTERVAL '1 day';
+    -- Tính toán ngày kết thúc dựa trên ngày bắt đầu và duration của gói
+    NEW.end_date := NEW.start_date + INTERVAL '1 day' * (SELECT duration FROM MembershipPlan WHERE plan_id = NEW.plan_id);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_set_membership_end_date
-BEFORE INSERT ON CustomerMembership
+CREATE TRIGGER trg_set_end_date_for_membership
+BEFORE INSERT ON Customer_Membership
 FOR EACH ROW
-EXECUTE FUNCTION set_membership_end_date();
+EXECUTE FUNCTION set_end_date_for_membership();
 
 -- 
 
-CREATE OR REPLACE FUNCTION check_schedule_conflict()
+CREATE OR REPLACE FUNCTION check_enrollment_date_validity()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM Schedule
-        WHERE TrainerID = NEW.TrainerID
-          AND Date = NEW.Date
-          AND (
-              (NEW.StartTime >= StartTime AND NEW.StartTime < EndTime) OR
-              (NEW.EndTime > StartTime AND NEW.EndTime <= EndTime)
-          )
-    ) THEN
-        RAISE EXCEPTION 'Schedule conflict detected for Trainer %', NEW.TrainerID;
+    -- Kiểm tra rằng ngày đăng ký không phải trong quá khứ
+    IF NEW.enrollment_date < CURRENT_DATE THEN
+        RAISE EXCEPTION 'The registration date cannot be in the past';
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_check_schedule_conflict
-BEFORE INSERT OR UPDATE ON Schedule
+CREATE TRIGGER trg_check_enrollment_date_validity
+BEFORE INSERT ON Class_Enrollment
 FOR EACH ROW
-EXECUTE FUNCTION check_schedule_conflict();
+EXECUTE FUNCTION check_enrollment_date_validity();
+
+--
+
+-- Hàm và thủ tục
+-- Thủ tục thêm người dùng vào. Nên dùng cách này khi thêm dữ liệu. 
+CREATE OR REPLACE PROCEDURE add_new_user(
+    p_user_name VARCHAR,
+    p_password VARCHAR,
+    p_role VARCHAR,
+    p_phone_number VARCHAR DEFAULT NULL,
+    p_email_address VARCHAR DEFAULT NULL,
+    p_full_name VARCHAR DEFAULT NULL,
+    p_age INT DEFAULT NULL,
+    p_specialty VARCHAR DEFAULT NULL
+)
+AS $$
+DECLARE
+    new_user_id INT;
+BEGIN
+    -- Thêm người dùng mới vào bảng "User"
+    INSERT INTO "User" (user_name, password, role, phone_number, email_address)
+    VALUES (p_user_name, p_password, p_role, p_phone_number, p_email_address)
+    RETURNING user_id INTO new_user_id;
+
+
+    IF p_role = 'Customer' THEN
+        -- Nếu vai trò là Customer, thêm vào bảng Customer
+        INSERT INTO Customer (user_id, full_name, age, registration_date)
+        VALUES (new_user_id, p_full_name, p_age, CURRENT_DATE);
+
+
+    ELSIF p_role = 'Trainer' THEN
+        -- Nếu vai trò là Trainer, thêm vào bảng Trainer
+        INSERT INTO Trainer (user_id, name, age, specialty)
+        VALUES (new_user_id, p_full_name, p_age, p_specialty);
+
+    ELSE
+        RAISE EXCEPTION 'Invalid role. Role must be "Customer" or "Trainer"';
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+
+-- Hàm tính chi phí của khách hàng
+CREATE OR REPLACE FUNCTION calculate_total_membership_cost(customer_id INT)
+RETURNS DECIMAL AS $$
+DECLARE
+    total_cost DECIMAL := 0;
+BEGIN
+    -- Tính tổng chi phí của các gói thành viên
+    SELECT SUM(mp.price) INTO total_cost
+    FROM Customer_Membership cm
+    JOIN MembershipPlan mp ON cm.plan_id = mp.plan_id
+    WHERE cm.customer_id = customer_id;
+
+    RETURN total_cost;
+END;
+$$ LANGUAGE plpgsql;
+
 
 

@@ -38,230 +38,230 @@
 ## Содержание
 
 - [Сущности](#сущности)
-  - [Customer](#Customer)
-  - [Trainer](#Traner)
+  - [User](#User)
+  - [Trainer](#Trainer)
+  - [GumFacility](#GumFacility)
   - [MembershipPlan](#MembershipPlan)
-  - [GymFacility](#GymFacility)
-  - [Equipment](#Equipment)
+  - [Customer](#Customer)
   - [Workout](#Workout)
-  - [Schedule](#Schedule)
   - [Class](#Class)
-  - [ClassEnrollment](#ClassEnrollment)
-  - [CustomerSchedule](#CustomerSchedule)
-  - [ClassWorkout](#ClassWorkout)
-  - [CustomerMembership](#CustomerMembership)
+  - [Class_Workout](#Class_Workout)
+  - [Customer_Membership](#Customer_Membership)
+  - [Schedule](#Schedule)
+  - [Class_Enrollment](#Class_Enrollment)
+  - [Customer_Schedule](#Customer_Schedule)
 - [Целостность данных](#Целостность-данных)
   - [Triggers](#Triggers)
 - [SQL-скрипты](#sql-скрипты)
+- [Функции и процедуры](#Функции-и-процедуры)
 - [ER-модель](#er-модель)
 - [Даталогическая модель](#даталогическая-модель)
 - [Тестирование производительности, создание индексов](#тестирование-производительности-создание-индексов)
 
 ## Сущности
 
-### Customer
+### User
 
 | Column Name      | Data Type      | Constraints       | References |
 |------------------|----------------|-------------------|------------|
-| CustomerID       | SERIAL         | PRIMARY KEY       | -          |
-| FullName         | VARCHAR(100)   | NOT NULL          | -          |
-| Phone            | VARCHAR(15)    | -                 | -          |
-| Email            | VARCHAR(100)   | UNIQUE            | -          |
-| Age              | INT            | NOT NULL          | -          |
-| RegistrationDate | DATE           | NOT NULL          | -          |
+| user_id          | SERIAL         | PRIMARY KEY       | -          |
+| user_name        | VARCHAR(255)   | NOT NULL, UNIQUE  | -          |
+| password         | VARCHAR(255)   | NOT NULL          | -          |
+| role             | VARCHAR(100)   | NOT NULL          | -          |
+| phone_number     | VARCHAR(15)    | -                 | -          |
+| email_address    | VARCHAR(255)   | -                 | -          |
+| createdAt        | TIMESTAMP      | -                 | -          |
+
 
 ### Trainer
 
 | Column Name      | Data Type      | Constraints       | References |
 |------------------|----------------|-------------------|------------|
-| TrainerID        | SERIAL         | PRIMARY KEY       | -          |
-| FullName         | VARCHAR(100)   | NOT NULL          | -          |
-| Age              | INT            | NOT NULL          | -          |
-| Phone            | VARCHAR(15)    | -                 | -          |
-| Specialty        | VARCHAR(100)   | -                 | -          |
+| user_id          | INT            | PRIMARY KEY       | -          |
+| name             | VARCHAR(255)   | NOT NULL          | -          |
+| age              | INT            | NOT NULL          | -          |
+| specialty        | VARCHAR(255)   | NOT NULL          | -          |
+
+
+### GumFacility
+
+| Column Name      | Data Type      | Constraints       | References |
+|------------------|----------------|-------------------|------------|
+| Facility_id      | SERIAL         | PRIMARY KEY       | -          |
+| Facility_name    | VARCHAR(255)   | NOT NULL          | -          |
+| address          | VARCHAR(255)   | NOT NULL          | -          |
+| capacity         | INT            | NOT NULL          | -          |
+
 
 ### MembershipPlan
 
 | Column Name      | Data Type      | Constraints       | References |
 |------------------|----------------|-------------------|------------|
-| PlanID           | SERIAL         | PRIMARY KEY       | -          |
-| PlanName         | VARCHAR(100)   | NOT NULL          | -          |
-| Price            | DECIMAL(10, 2) | NOT NULL          | -          |
-| Duration         | INT            | NOT NULL          | -          |
+| plan_id          | SERIAL         | PRIMARY KEY       | -          |
+| plan_name        | VARCHAR(255)   | NOT NULL          | -          |
+| price            | DECIMAL(10     | -                 | -          |
+| NOT              | NULL           | -                 | -          |
+| duration         | INT            | NOT NULL          | -          |
 
-### GymFacility
 
-| Column Name      | Data Type      | Constraints       | References |
-|------------------|----------------|-------------------|------------|
-| FacilityID       | SERIAL         | PRIMARY KEY       | -          |
-| FacilityName     | VARCHAR(100)   | NOT NULL          | -          |
-| Address          | VARCHAR(255)   | -                 | -          |
-| Capacity         | INT            | -                 | -          |
-
-### Equipment
+### Customer
 
 | Column Name      | Data Type      | Constraints       | References |
 |------------------|----------------|-------------------|------------|
-| EquipmentID      | SERIAL         | PRIMARY KEY       | -          |
-| EquipmentName    | VARCHAR(100)   | NOT NULL          | -          |
-| Type             | VARCHAR(100)   | -                 | -          |
-| Status           | VARCHAR(50)    | -                 | -          |
+| user_id          | INT            | PRIMARY KEY       | -          |
+| full_name        | VARCHAR(255)   | NOT NULL          | -          |
+| age              | INT            | NOT NULL          | -          |
+| registration_date | DATE           | NOT NULL          | -          |
+
 
 ### Workout
 
 | Column Name      | Data Type      | Constraints       | References |
 |------------------|----------------|-------------------|------------|
-| WorkoutID        | SERIAL         | PRIMARY KEY       | -          |
-| WorkoutName      | VARCHAR(100)   | NOT NULL          | -          |
-| Category         | VARCHAR(50)    | -                 | -          |
-| Difficulty       | VARCHAR(50)    | -                 | -          |
+| workout_id       | SERIAL         | PRIMARY KEY       | -          |
+| workout_name     | VARCHAR(255)   | NOT NULL          | -          |
+| category         | VARCHAR(100)   | NOT NULL          | -          |
+| difficulty       | VARCHAR(50)    | NOT NULL          | -          |
 
-### Schedule
-
-| Column Name      | Data Type      | Constraints       | References                  |
-|------------------|----------------|-------------------|-----------------------------|
-| ScheduleID       | SERIAL         | PRIMARY KEY       | -                           |
-| StartTime        | TIME           | NOT NULL          | -                           |
-| EndTime          | TIME           | NOT NULL          | -                           |
-| Date             | DATE           | NOT NULL          | -                           |
-| TrainerID        | INT            | REFERENCES Trainer(TrainerID) | -        |
 
 ### Class
 
-| Column Name      | Data Type      | Constraints       | References                  |
-|------------------|----------------|-------------------|-----------------------------|
-| ClassID          | SERIAL         | PRIMARY KEY       | -                           |
-| ClassName        | VARCHAR(100)   | NOT NULL          | -                           |
-| ClassType        | VARCHAR(100)   | -                 | -                           |
-| MaxParticipants  | INT            | NOT NULL          | -                           |
-| FacilityID       | INT            | REFERENCES GymFacility(FacilityID) | -   |
+| Column Name      | Data Type      | Constraints       | References |
+|------------------|----------------|-------------------|------------|
+| class_id         | SERIAL         | PRIMARY KEY       | -          |
+| class_name       | VARCHAR(255)   | NOT NULL          | -          |
+| class_type       | VARCHAR(100)   | NOT NULL          | -          |
+| max_participants | INT            | NOT NULL          | -          |
+| facility_id      | INT            | -                 | GumFacility |
 
-### ClassEnrollment
 
-| Column Name      | Data Type      | Constraints       | References                  |
-|------------------|----------------|-------------------|-----------------------------|
-| EnrollmentID     | SERIAL         | PRIMARY KEY       | -                           |
-| CustomerID       | INT            | REFERENCES Customer(CustomerID) | -        |
-| ClassID          | INT            | REFERENCES Class(ClassID) | -               |
-| EnrollmentDate   | DATE           | NOT NULL          | -                           |
+### Class_Workout
 
-### CustomerSchedule
+| Column Name      | Data Type      | Constraints       | References |
+|------------------|----------------|-------------------|------------|
+| class_id         | INT            | -                 | -          |
+| workout_id       | INT            | -                 | Workout    |
+| PRIMARY          | KEY            | -                 | -          |
 
-| Column Name      | Data Type      | Constraints       | References                              |
-|------------------|----------------|-------------------|-----------------------------------------|
-| CustomerID       | INT            | REFERENCES Customer(CustomerID) | PRIMARY KEY (CustomerID, ScheduleID) |
-| ScheduleID       | INT            | REFERENCES Schedule(ScheduleID) | -                                     |
-| TrainerID        | INT            | REFERENCES Trainer(TrainerID) ON DELETE SET NULL | -        |
 
-### ClassWorkout
+### Customer_Membership
 
-| Column Name      | Data Type      | Constraints       | References                  |
-|------------------|----------------|-------------------|-----------------------------|
-| ClassID          | INT            | REFERENCES Class(ClassID) | PRIMARY KEY (ClassID, WorkoutID) |
-| WorkoutID        | INT            | REFERENCES Workout(WorkoutID) | -                        |
+| Column Name      | Data Type      | Constraints       | References |
+|------------------|----------------|-------------------|------------|
+| customer_membership_id | SERIAL         | PRIMARY KEY       | -          |
+| plan_id          | INT            | -                 | MembershipPlan |
+| customer_id      | INT            | -                 | Customer   |
+| start_date       | DATE           | NOT NULL          | -          |
+| end_date         | DATE           | NOT NULL          | -          |
 
-### CustomerMembership
 
-| Column Name      | Data Type      | Constraints       | References                      |
-|------------------|----------------|-------------------|---------------------------------|
-| MembershipID     | SERIAL         | PRIMARY KEY       | -                               |
-| CustomerID       | INT            | REFERENCES Customer(CustomerID) | -                     |
-| PlanID           | INT            | REFERENCES MembershipPlan(PlanID) | -                   |
-| StartDate        | DATE           | NOT NULL          | -                               |
-| EndDate          | DATE           | NOT NULL          | -                               |
+### Schedule
+
+| Column Name      | Data Type      | Constraints       | References |
+|------------------|----------------|-------------------|------------|
+| Schedule_id      | SERIAL         | PRIMARY KEY       | -          |
+| trainer_id       | INT            | -                 | Trainer    |
+| start_time       | TIME           | NOT NULL          | -          |
+| end_time         | TIME           | NOT NULL          | -          |
+| date             | DATE           | NOT NULL          | -          |
+
+
+### Class_Enrollment
+
+| Column Name      | Data Type      | Constraints       | References |
+|------------------|----------------|-------------------|------------|
+| enrollment_id    | SERIAL         | PRIMARY KEY       | -          |
+| customer_id      | INT            | -                 | Customer   |
+| class_id         | INT            | -                 | -          |
+| enrollment_date  | DATE           | NOT NULL          | -          |
+
+
+### Customer_Schedule
+
+| Column Name      | Data Type      | Constraints       | References |
+|------------------|----------------|-------------------|------------|
+| customer_id      | INT            | -                 | Customer   |
+| schedule_id      | INT            | -                 | Schedule   |
+| class_id         | INT            | -                 | -          |
+| trainer_id       | INT            | -                 | Trainer    |
+| PRIMARY          | KEY            | -                 | -          |
 
 
 ## Целостность данных
 
 
 ```sql
+-- Ràng buộc mail 
+ALTER TABLE "User"
+ADD CONSTRAINT email_format CHECK (email_address ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+
+-- Ràng buộc thời gian trong lịch 
 ALTER TABLE Schedule
-ADD CONSTRAINT CK_ScheduleTime CHECK (StartTime < EndTime);
+ADD CONSTRAINT valid_schedule_time CHECK (start_time < end_time);
 
-ALTER TABLE Class
-ADD CONSTRAINT CK_Class_Capacity CHECK (MaxParticipants > 0);
-
+-- Ràng buộc tuổi 
 ALTER TABLE Customer
-ADD CONSTRAINT CK_Email_Format CHECK (Email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$');
+ADD CONSTRAINT valid_age CHECK (age >= 0);
 
+-- Ràng buộc giá tiền 
 ALTER TABLE MembershipPlan
-ADD CONSTRAINT CK_Plan_Price CHECK (Price > 0);
+ADD CONSTRAINT valid_price CHECK (price >= 0);
 
-ALTER TABLE GymFacility
-ADD CONSTRAINT CK_Facility_Capacity CHECK (Capacity > 0);
+-- Ràng buộc thời gian bắt đầu phải trước kết thúc
+ALTER TABLE Customer_Membership
+ADD CONSTRAINT valid_membership_dates CHECK (start_date < end_date);
+
+-- Ràng buộc số lượng tối đa > 0
+ALTER TABLE "Class"
+ADD CONSTRAINT valid_max_participants CHECK (max_participants > 0);
+
+-- Ràng buộc độ khó
+ALTER TABLE Workout
+ADD CONSTRAINT valid_difficulty CHECK (difficulty IN ('Easy', 'Medium', 'Hard'));
+
 ```
 
 ### Триггеры
 
-- триггер Отображается, если количество членов в классе заполнено
+- Триггер автоматически рассчитывает дату истечения срока действия пакета.
 
 ```sql
-CREATE OR REPLACE FUNCTION check_class_capacity()
+CREATE OR REPLACE FUNCTION set_end_date_for_membership()
 RETURNS TRIGGER AS $$
 BEGIN
-    IF (
-        (SELECT COUNT(*) FROM ClassEnrollment WHERE ClassID = NEW.ClassID) >= 
-        (SELECT MaxParticipants FROM Class WHERE ClassID = NEW.ClassID)
-    ) THEN
-        RAISE EXCEPTION 'Class is already full!';
+    -- Tính toán ngày kết thúc dựa trên ngày bắt đầu và duration của gói
+    NEW.end_date := NEW.start_date + INTERVAL '1 day' * (SELECT duration FROM MembershipPlan WHERE plan_id = NEW.plan_id);
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_set_end_date_for_membership
+BEFORE INSERT ON Customer_Membership
+FOR EACH ROW
+EXECUTE FUNCTION set_end_date_for_membership();
+```
+
+- Проверьте, что дата регистрации не в прошлом.
+
+```sql
+CREATE OR REPLACE FUNCTION check_enrollment_date_validity()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Kiểm tra rằng ngày đăng ký không phải trong quá khứ
+    IF NEW.enrollment_date < CURRENT_DATE THEN
+        RAISE EXCEPTION 'The registration date cannot be in the past';
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_check_class_capacity
-BEFORE INSERT ON ClassEnrollment
+CREATE TRIGGER trg_check_enrollment_date_validity
+BEFORE INSERT ON Class_Enrollment
 FOR EACH ROW
-EXECUTE FUNCTION check_class_capacity();
-```
-
-- Триггер автоматически рассчитывает дату истечения срока действия пакета
-
-```sql
-CREATE OR REPLACE FUNCTION set_membership_end_date()
-RETURNS TRIGGER AS $$
-BEGIN
-    NEW.EndDate := NEW.StartDate + 
-                   (SELECT Duration FROM MembershipPlan WHERE PlanID = NEW.PlanID) * INTERVAL '1 day';
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_set_membership_end_date
-BEFORE INSERT ON CustomerMembership
-FOR EACH ROW
-EXECUTE FUNCTION set_membership_end_date();
+EXECUTE FUNCTION check_enrollment_date_validity();
 
 ```
 
-- Триггерная проверка действительного времени расписания обучения
-
-```sql
-CREATE OR REPLACE FUNCTION check_schedule_conflict()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF EXISTS (
-        SELECT 1
-        FROM Schedule
-        WHERE TrainerID = NEW.TrainerID
-          AND Date = NEW.Date
-          AND (
-              (NEW.StartTime >= StartTime AND NEW.StartTime < EndTime) OR
-              (NEW.EndTime > StartTime AND NEW.EndTime <= EndTime)
-          )
-    ) THEN
-        RAISE EXCEPTION 'Schedule conflict detected for Trainer %', NEW.TrainerID;
-    END IF;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_check_schedule_conflict
-BEFORE INSERT OR UPDATE ON Schedule
-FOR EACH ROW
-EXECUTE FUNCTION check_schedule_conflict();
-
-```
 
 ## SQL-скрипты
 
@@ -269,6 +269,65 @@ EXECUTE FUNCTION check_schedule_conflict();
 - [Вставка тестовых данных](/kyco_part2/create_data.sql)
 - [Скрипт для удаления](/kyco_part2/deleteAll.sql)
 
+## Функции и процедуры
+
+- Функция затрат клиента
+```sql
+CREATE OR REPLACE FUNCTION calculate_total_membership_cost(customer_id INT)
+RETURNS DECIMAL AS $$
+DECLARE
+    total_cost DECIMAL := 0;
+BEGIN
+    -- Tính tổng chi phí của các gói thành viên
+    SELECT SUM(mp.price) INTO total_cost
+    FROM Customer_Membership cm
+    JOIN MembershipPlan mp ON cm.plan_id = mp.plan_id
+    WHERE cm.customer_id = customer_id;
+
+    RETURN total_cost;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+- Процедура добавления пользователя.
+```sql
+CREATE OR REPLACE PROCEDURE add_new_user(
+    p_user_name VARCHAR,
+    p_password VARCHAR,
+    p_role VARCHAR,
+    p_phone_number VARCHAR DEFAULT NULL,
+    p_email_address VARCHAR DEFAULT NULL,
+    p_full_name VARCHAR DEFAULT NULL,
+    p_age INT DEFAULT NULL,
+    p_specialty VARCHAR DEFAULT NULL
+)
+AS $$
+DECLARE
+    new_user_id INT;
+BEGIN
+    -- Thêm người dùng mới vào bảng "User"
+    INSERT INTO "User" (user_name, password, role, phone_number, email_address)
+    VALUES (p_user_name, p_password, p_role, p_phone_number, p_email_address)
+    RETURNING user_id INTO new_user_id;
+
+
+    IF p_role = 'Customer' THEN
+        -- Nếu vai trò là Customer, thêm vào bảng Customer
+        INSERT INTO Customer (user_id, full_name, age, registration_date)
+        VALUES (new_user_id, p_full_name, p_age, CURRENT_DATE);
+
+
+    ELSIF p_role = 'Trainer' THEN
+        -- Nếu vai trò là Trainer, thêm vào bảng Trainer
+        INSERT INTO Trainer (user_id, name, age, specialty)
+        VALUES (new_user_id, p_full_name, p_age, p_specialty);
+
+    ELSE
+        RAISE EXCEPTION 'Invalid role. Role must be "Customer" or "Trainer"';
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+```
 
 ## ER-модель
 
@@ -282,38 +341,37 @@ EXECUTE FUNCTION check_schedule_conflict();
 
 ### [Индексы](/kyco_part2/index.sql)
 
-### Фильтрация клиентов по электронной почте или идентификатору
+### Индекс для user_name для ускорения поиска по user_name.
 
 ```sql
-CREATE INDEX idx_customer_email ON Customer(Email);
-CREATE INDEX idx_customer_id ON Customer(CustomerID);
+CREATE INDEX idx_user_name ON "User" (user_name);
 ```
 
-
-### Быстрый поиск классов, на которые зарегистрировались клиенты, или конкретной информации о классе.
-
+### Индекс email_address для быстрого поиска по адресу электронной почты.
 ```sql
-CREATE INDEX idx_class_enrollment_customer ON ClassEnrollment(CustomerID);
-CREATE INDEX idx_class_enrollment_class ON ClassEnrollment(ClassID);
-CREATE INDEX idx_class_id ON Class(ClassID);
+CREATE INDEX idx_user_email ON "User" (email_address);
 ```
 
-### Получите графики предстоящих тренировок для отправки уведомлений.
+### Индекс facility_name для быстрого поиска по названию объекта.
 
 ```sql
-CREATE INDEX idx_schedule_upcoming ON Schedule(Date, StartTime);
+CREATE INDEX idx_gumfacility_name ON GumFacility (Facility_name);
 ```
 
-### Быстрое получение данных для организации расписаний
+### Индекс для class_name для быстрого поиска по имени класса.
 
 ```sql
-CREATE INDEX idx_trainer_schedule ON Schedule(TrainerID, Date);
+CREATE INDEX idx_class_name ON "Class" (class_name);
 ```
 
-### Отображает упражнения, в которых участвовал клиент.
+### Индекс даты для поиска календаря по дате.
 
 ```sql
-CREATE INDEX idx_workout_customer ON CustomerSchedule(CustomerID);
-CREATE INDEX idx_workout_class ON ClassWorkout(ClassID);
-CREATE INDEX idx_workout_id ON Workout(WorkoutID);
+CREATE INDEX idx_schedule_date ON Schedule (date);
+```
+
+### Индекс для customer_id для поиска в календаре клиента.
+
+```sql
+CREATE INDEX idx_customer_schedule_customer_id ON Customer_Schedule (customer_id);
 ```

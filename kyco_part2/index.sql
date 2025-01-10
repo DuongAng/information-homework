@@ -1,31 +1,18 @@
--- lọc khách hàng theo email 
+-- Index
+-- Chỉ mục cho user_name để tăng tốc độ tìm kiếm theo user_name
+CREATE INDEX idx_user_name ON "User" (user_name);
 
-CREATE INDEX idx_customer_email ON Customer(Email);
-CREATE INDEX idx_customer_id ON Customer(CustomerID);
+-- Chỉ mục cho email_address để tìm kiếm nhanh theo địa chỉ email
+CREATE INDEX idx_user_email ON "User" (email_address);
 
--- TÌm kiếm lịch theo customerId hoặc lịch date
+-- Chỉ mục cho facility_name để tìm kiếm nhanh theo tên cơ sở
+CREATE INDEX idx_gumfacility_name ON GumFacility (Facility_name);
 
-CREATE INDEX idx_schedule_customer ON CustomerSchedule(CustomerID);
-CREATE INDEX idx_schedule_date ON Schedule(Date);
-CREATE INDEX idx_schedule_trainer ON Schedule(TrainerID);
+-- Chỉ mục cho class_name để tìm kiếm nhanh theo tên lớp
+CREATE INDEX idx_class_name ON "Class" (class_name);
 
--- Tìm kiếm nhanh các lớp học mà khách hàng đã đăng ký hoặc thông tin lớp học cụ thể.
+-- Chỉ mục cho date để tìm kiếm lịch theo ngày
+CREATE INDEX idx_schedule_date ON Schedule (date);
 
-CREATE INDEX idx_class_enrollment_customer ON ClassEnrollment(CustomerID);
-CREATE INDEX idx_class_enrollment_class ON ClassEnrollment(ClassID);
-CREATE INDEX idx_class_id ON Class(ClassID);
-
--- Hoạt động: Truy xuất các lịch tập sắp tới để gửi thông báo.
-
-CREATE INDEX idx_schedule_upcoming ON Schedule(Date, StartTime);
-
--- Hiển thị các bài tập mà khách hàng đã tham gia.
-
-CREATE INDEX idx_workout_customer ON CustomerSchedule(CustomerID);
-CREATE INDEX idx_workout_class ON ClassWorkout(ClassID);
-CREATE INDEX idx_workout_id ON Workout(WorkoutID);
-
--- Truy xuất dữ liệu nhanh chóng để sắp xếp lịch trình
-
-CREATE INDEX idx_trainer_schedule ON Schedule(TrainerID, Date);
-
+-- Chỉ mục cho customer_id để tìm kiếm lịch của khách hàng
+CREATE INDEX idx_customer_schedule_customer_id ON Customer_Schedule (customer_id);
